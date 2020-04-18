@@ -6,5 +6,29 @@ headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWe
 req = requests.get('https://www.metacritic.com/game', headers = headers)
 soup = BeautifulSoup(req.content, 'html.parser')
 
-gametable = soup.find(class_='clamp-list')
-print(gametable)
+nums = []
+titles = []
+scores = []
+dates = []
+summaries = []
+clamp = soup.find(class_='clamp-list')
+count = 0
+
+for i in soup.find_all(class_='title numbered'):
+    nums.append(i.get_text().strip())
+for i in clamp.find_all('h3'):
+    titles.append(i.get_text().strip())
+for score in clamp.find_all(class_='metascore_w large game positive'):
+    if count % 2 == 0:
+            scores.append(score.get_text().strip())
+    count = count + 1
+count = 0
+for span in soup.find_all(class_='clamp-details'):
+    if count % 2 == 1:
+        dates.append(span.get_text().strip())
+    count = count + 1
+for sum in soup.find_all(class_='summary'):
+    summaries.append(sum.get_text().strip())
+
+data = pd.DataFrame({'place':nums, 'title':titles, 'score':scores, 'date':dates, 'summary':summaries})
+data.to_csv('g.csv')

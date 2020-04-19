@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 import re
-import os
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -79,6 +78,32 @@ def getTopAnimeEver():
     if data.empty:
         getTopAiringAnime()
     data.to_csv('Top50AnimeEver.csv')
-    print(os.getcwd())
 
-getTopAnimeEver()
+def getTop50Steam():
+    req = requests.get('https://store.steampowered.com/search/?filter=topsellers&os=win', headers = headers)
+    soup = BeautifulSoup(req.content, 'html.parser')
+    v = soup.find(id='search_resultsRows')
+
+    names = []
+    ranks = []
+    prices = []
+    count = 1
+
+    for ent in v.find_all('a'):
+        names.append(ent.find(class_='title').get_text().strip())
+        ranks.append(count)
+        #print(ent.find('br'))
+        s = ent.find(class_='col search_price discounted responsive_secondrow')
+        if s is not None:
+            str = s.get_text().strip()
+            str = re.sub('^\$[0-9]*.[0-9]*', '', str)
+            prices.append(str)
+        else:
+            prices.append(ent.find(class_='col search_price_discount_combined responsive_secondrow').get_text().strip())
+        count = count + 1
+
+    data = pd.DataFrame({'Rank':ranks, 'Name':names, 'Price':prices})
+    data.to_csv('Top50Steam.csv')
+
+
+getTop50Steam()

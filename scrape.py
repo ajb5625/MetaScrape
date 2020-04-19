@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
-from tkinter import  *
+import re
+import os
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -38,22 +39,46 @@ def getMetacritic():
 def getTopAiringAnime():
     req = requests.get('https://myanimelist.net/topanime.php?type=airing', headers = headers)
     soup = BeautifulSoup(req.content, 'html.parser')
+
     ranks = []
     names = []
     scores = []
 
     for anime in soup.find_all(class_='ranking-list'):
         ranks.append(anime.find(class_='rank ac').get_text().strip())
-        names.append(anime.find(class_='title al va-t word-break').get_text().strip())
+        n = anime.find(class_='title al va-t word-break').get_text().strip()
+        n = re.sub('Watch Promotional Video*', '', n)
+        n = re.sub('Watch Episode Video*', '', n)
+        n = re.sub('\n.*', '', n)
+        names.append(n)
         scores.append(anime.find(class_='score ac fs14').get_text().strip())
 
     data = pd.DataFrame({'Rank': ranks, 'Name' : names, 'Score':scores})
     if data.empty:
         getTopAiringAnime()
-    print(data)
-    data.to_csv('Top 50 Airing Anime')
+    data.to_csv('Top50AiringAnime.csv')
 
+def getTopAnimeEver():
+    req = requests.get('https://myanimelist.net/topanime.php', headers = headers)
+    soup = BeautifulSoup(req.content, 'html.parser')
 
+    ranks = []
+    names = []
+    scores = []
 
+    for anime in soup.find_all(class_='ranking-list'):
+        ranks.append(anime.find(class_='rank ac').get_text().strip())
+        n = anime.find(class_='title al va-t word-break').get_text().strip()
+        n = re.sub('Watch Promotional Video*', '', n)
+        n = re.sub('Watch Episode Video*', '', n)
+        n = re.sub('\n.*', '', n)
+        names.append(n)
+        scores.append(anime.find(class_='score ac fs14').get_text().strip())
 
-getTopAiringAnime()
+    data = pd.DataFrame({'Rank': ranks, 'Name' : names, 'Score':scores})
+    if data.empty:
+        getTopAiringAnime()
+    data.to_csv('Top50AnimeEver.csv')
+    print(os.getcwd())
+
+getTopAnimeEver()

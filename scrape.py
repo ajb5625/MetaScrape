@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 import re
+import sys
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -106,4 +107,27 @@ def getTop50Steam():
     data.to_csv('Top50Steam.csv')
 
 
-getTop50Steam()
+arg_list = sys.argv
+x = 0
+usage = """                 Usage
+           Get Top Airing Anime               -taa
+           Get Top Anime Ever                 -tae
+           Get Top Metacritic                  -gm
+           Get Top Selling Steam               -ts
+           Usage                            -usage"""
+for arg in arg_list:
+    if x == 0:
+        x = 1
+        continue
+    if arg == '-taa':
+        getTopAiringAnime()
+    elif arg == '-tae':
+        getTopAnimeEver()
+    elif arg == '-gm':
+        getMetacritic()
+    elif arg == '-ts':
+        getTop50Steam()
+    elif arg == '-usage':
+        print(usage)
+    else:
+        print(usage)

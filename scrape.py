@@ -3,6 +3,9 @@ import pandas as pd
 import requests
 import re
 import sys
+import random
+import os
+from os import path
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -106,8 +109,35 @@ def getTop50Steam():
     data = pd.DataFrame({'Rank':ranks, 'Name':names, 'Price':prices})
     data.to_csv('Top50Steam.csv')
 
+def compareTop10Metacritic():
+    if path.exists("cMetacritic.csv"):
+        df = pd.read_csv("cMetacritic.csv")
+        oldf = pd.read_csv("games.csv")
+        s = set()
+        count = 0
+        for row in oldf.iterrows():
+            s.add(row[1][2])
+        for row in df.iterrows():
+            if row[1][1] in s:
+                df.DaysatTop[count] = df.DaysatTop[count] + 1
+            else:
+                df = df.drop(df.index[df.Game == row[1][1]])
+            count = count + 1
+        print(df)
+        df.to_csv('cMetacritic.csv')
+    else:
+        data = pd.read_csv('games.csv')
+        columns = ['Game', 'DaysatTop']
+        newdf = pd.DataFrame(columns = columns)
+        games = data['title']
+        ones = []
+        for g in games:
+            ones.append(1)
+        newdf = pd.DataFrame({'Game':games, 'DaysatTop':ones})
+        newdf.to_csv('cMetacritic.csv')
 
 arg_list = sys.argv
+compareTop10Metacritic()
 x = 0
 usage = """                 Usage
            Get Top Airing Anime               -taa

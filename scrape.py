@@ -6,6 +6,7 @@ import sys
 import random
 import os
 from os import path
+from collections import OrderedDict
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -113,17 +114,26 @@ def compareTop10Metacritic():
     if path.exists("cMetacritic.csv"):
         df = pd.read_csv("cMetacritic.csv")
         oldf = pd.read_csv("games.csv")
-        s = set()
+        s = OrderedDict()
         count = 0
         for row in oldf.iterrows():
-            s.add(row[1][2])
+            s[row[1][2]] = None
+        print(s)
         for row in df.iterrows():
             if row[1][1] in s:
                 df.DaysatTop[count] = df.DaysatTop[count] + 1
+                if row[1][1] in s:
+                    del s[row[1][1]]
             else:
                 df = df.drop(df.index[df.Game == row[1][1]])
+                print('\nhello\n')
+                print(s.pop())
+
+
             count = count + 1
-        print(df)
+        print(s)
+        df = df.iloc[0:, 1:]
+        #print(df)
         df.to_csv('cMetacritic.csv')
     else:
         data = pd.read_csv('games.csv')

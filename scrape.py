@@ -118,7 +118,6 @@ def compareTop10Metacritic():
         count = 0
         for row in oldf.iterrows():
             s[row[1][2]] = None
-        print(s)
         for row in df.iterrows():
             if row[1][1] in s:
                 df.DaysatTop[count] = df.DaysatTop[count] + 1
@@ -126,14 +125,13 @@ def compareTop10Metacritic():
                     del s[row[1][1]]
             else:
                 df = df.drop(df.index[df.Game == row[1][1]])
-                print('\nhello\n')
-                print(s.pop())
-
-
             count = count + 1
-        print(s)
+        for key in s:
+            row = ['', key, 1]
+            df.loc[len(df)] = row
+
         df = df.iloc[0:, 1:]
-        #print(df)
+        df = df.sort_values('DaysatTop', ascending = False)
         df.to_csv('cMetacritic.csv')
     else:
         data = pd.read_csv('games.csv')
@@ -146,8 +144,8 @@ def compareTop10Metacritic():
         newdf = pd.DataFrame({'Game':games, 'DaysatTop':ones})
         newdf.to_csv('cMetacritic.csv')
 
+#main
 arg_list = sys.argv
-compareTop10Metacritic()
 x = 0
 usage = """                 Usage
            Get Top Airing Anime               -taa

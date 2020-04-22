@@ -7,6 +7,7 @@ import random
 import os
 from os import path
 from collections import OrderedDict
+import time
 
 headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
 def getMetacritic():
@@ -111,9 +112,10 @@ def getTop50Steam():
     data.to_csv('Top50Steam.csv')
 
 def compareTop10Metacritic():
+    getMetacritic()
     if path.exists("cMetacritic.csv"):
         df = pd.read_csv("cMetacritic.csv")
-        oldf = pd.read_csv("games.csv")
+        oldf = pd.read_csv("g.csv")
         s = OrderedDict()
         count = 0
         for row in oldf.iterrows():
@@ -134,12 +136,17 @@ def compareTop10Metacritic():
         df = df.sort_values('DaysatTop', ascending = False)
         df.to_csv('cMetacritic.csv')
     else:
-        data = pd.read_csv('games.csv')
+        data = pd.read_csv('g.csv')
         columns = ['Game', 'DaysatTop']
         newdf = pd.DataFrame(columns = columns)
-        games = data['title']
+        games = data['Title']
         ones = []
+        r = OrderedDict()
         for g in games:
+            r[g] = None
+        games = []
+        for key in r:
+            games.append(key)
             ones.append(1)
         newdf = pd.DataFrame({'Game':games, 'DaysatTop':ones})
         newdf.to_csv('cMetacritic.csv')
@@ -152,7 +159,9 @@ usage = """                 Usage
            Get Top Anime Ever                 -tae
            Get Top Metacritic                  -gm
            Get Top Selling Steam               -ts
+           Run Leaderboard Manager        -a <time>
            Usage                            -usage"""
+
 for arg in arg_list:
     if x == 0:
         x = 1
@@ -167,5 +176,12 @@ for arg in arg_list:
         getTop50Steam()
     elif arg == '-usage':
         print(usage)
+    elif arg == '-a':
+        t = arg_list[x + 1]
+        print('hello')
+        while True:
+            compareTop10Metacritic()
+            time.sleep(int(t))
     else:
         print(usage)
+    x = x + 1
